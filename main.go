@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
@@ -19,10 +20,10 @@ const (
 
 // command and options
 var (
-	Command     string
 	CommandFlag = flag.String("c", "", "command")
 	AllFlag     = flag.Bool("a", false, "use this option for all clusters")
 	ErrorFlag   = flag.Bool("e", false, "detect desired > running ecs tasks")
+	HeaderFlag  = flag.Bool("h", false, "show headers")
 	ClusterFlag = flag.String("cn", "", "filter by cluster name")
 	ServiceFlag = flag.String("sn", "", "filter by service name")
 )
@@ -45,9 +46,9 @@ func Init() {
 		exitErrorf("Usage: gofe -p <command> <options>")
 	}
 	flag.Parse()
+	// debug
 	PrintFlags()
-	Command = *CommandFlag
-	err := CheckCommand(Command)
+	err := CheckCommand(*CommandFlag)
 	if err != nil {
 		exitErrorf("%v", err)
 	}
@@ -73,13 +74,19 @@ func PrintFlags() {
 	fmt.Println(*ServiceFlag)
 }
 
+func StdOutClusterHeaders() {
+	fmt.Printf("cluster\tservice\ttaskdefinition\tdesired\tpending\trunning\n")
+}
+
 func StdOutService(service ecs.Service) {
-	fmt.Printf("cluster = %+v\n", *service.ClusterArn)
-	fmt.Printf("service = %+v\n", *service.ServiceName)
-	fmt.Printf("taskdefinition = %+v\n", *service.TaskDefinition)
-	fmt.Printf("desired = %+v\n", *service.DesiredCount)
-	fmt.Printf("pending = %+v\n", *service.PendingCount)
-	fmt.Printf("running = %+v\n", *service.RunningCount)
+	var clusterarn = strings.Split(*service.ClusterArn, "/")
+	var taskdef = strings.Split(*service.TaskDefinition, "/")
+	fmt.Printf("%+v\t", clusterarn[len(clusterarn)-1])
+	fmt.Printf("%+v\t", *service.ServiceName)
+	fmt.Printf("%+v\t", taskdef[len(taskdef)-1])
+	fmt.Printf("%+v\t", *service.DesiredCount)
+	fmt.Printf("%+v\t", *service.PendingCount)
+	fmt.Printf("%+v\t\n", *service.RunningCount)
 }
 
 // Run example
@@ -89,30 +96,28 @@ func Run() {
 
 	var clusters *ecs.ListClustersOutput
 	// run command
-	if Command == TaskCommand {
+	if *CommandFlag == TaskCommand {
+		if *HeaderFlag {
+			StdOutClusterHeaders()
+		}
 		if *AllFlag {
-			fmt.Printf("all")
 			clusters = ListClusters(svc)
-
 			for _, cluster := range clusters.ClusterArns {
 				services := ListServices(svc, cluster)
 				descs := DescServices(svc, cluster, services.ServiceArns)
-				if *ErrorFlag {
-					for _, service := range descs.Services {
+				for _, service := range descs.Services {
+					if *ErrorFlag {
 						if *service.DesiredCount != *service.RunningCount {
 							StdOutService(*service)
 						}
-					}
-				} else {
-					for _, service := range descs.Services {
+					} else {
 						StdOutService(*service)
 					}
 				}
 			}
 		}
-
-	} else if Command == EventsCommand {
-		fmt.Printf(Command)
+	} else if *CommandFlag == EventsCommand {
+		PrintFlags()
 	}
 
 	// list clusters
