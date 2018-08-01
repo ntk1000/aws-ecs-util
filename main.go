@@ -23,7 +23,7 @@ var (
 	CommandFlag = flag.String("c", "", "command")
 	AllFlag     = flag.Bool("a", false, "use this option for all clusters")
 	ErrorFlag   = flag.Bool("e", false, "detect desired > running ecs tasks")
-	HeaderFlag  = flag.Bool("h", false, "show headers")
+	HeaderFlag  = flag.Bool("wh", false, "show headers")
 	ClusterFlag = flag.String("cn", "", "filter by cluster name")
 	ServiceFlag = flag.String("sn", "", "filter by service name")
 )
