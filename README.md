@@ -1,5 +1,9 @@
 # aws-ecs-util
 
+[![Build Status](https://travis-ci.org/ntk1000/aws-ecs-util.svg?branch=master)](https://travis-ci.org/ntk1000/aws-ecs-util)
+[![Coverage Status](https://coveralls.io/repos/github/ntk1000/aws-ecs-util/badge.svg?branch=master)](https://coveralls.io/github/ntk1000/aws-ecs-util?branch=master)
+
+
 go utility tool for aws ecs (gofe)
 
 ## description
