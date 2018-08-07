@@ -2,7 +2,8 @@
 
 [![Build Status](https://travis-ci.org/ntk1000/aws-ecs-util.svg?branch=master)](https://travis-ci.org/ntk1000/aws-ecs-util)
 [![Coverage Status](https://coveralls.io/repos/github/ntk1000/aws-ecs-util/badge.svg?branch=master)](https://coveralls.io/github/ntk1000/aws-ecs-util?branch=master)
-
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fntk1000%2Faws-ecs-util.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fntk1000%2Faws-ecs-util?ref=badge_shield)
+[![Go Report Card](https://goreportcard.com/badge/github.com/ntk1000/aws-ecs-util)](https://goreportcard.com/report/github.com/ntk1000/aws-ecs-util)
 
 go utility tool for aws ecs (gofe)
 
