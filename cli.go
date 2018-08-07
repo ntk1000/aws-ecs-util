@@ -57,6 +57,7 @@ func (c *CLI) Init(args []string) int {
 		return ExitCodeCommandError
 	}
 
+	// setup flags
 	flags := flag.NewFlagSet(args[0], flag.ExitOnError)
 	flags.SetOutput(c.errStream)
 	flags.BoolVar(&c.WithAll, "a", false, "use this option for all clusters")
@@ -129,6 +130,7 @@ func (c *CLI) Run() int {
 				}
 			}
 		}
+		// TODO else
 	case EventsCommand:
 		io.WriteString(c.outStream, "not yet")
 	}

@@ -16,9 +16,7 @@ type conf struct {
 	keyid, secret, region string
 }
 
-func TestCreateServiceClientViaEnv(t *testing.T) {
-
-	var c conf
+func confSetUp(t *testing.T) (c conf) {
 	c.keyid = os.Getenv(KEYID)
 	if c.keyid == "" {
 		t.Errorf(ExitNoEnv)
@@ -31,6 +29,12 @@ func TestCreateServiceClientViaEnv(t *testing.T) {
 	if c.region == "" {
 		t.Errorf(ExitNoEnv)
 	}
+	return
+}
+
+func TestCreateServiceClientViaEnv(t *testing.T) {
+
+	c := confSetUp(t)
 	svc, err := CreateServiceClientViaEnv()
 	if svc == nil || err != nil {
 		t.Errorf(ExitMsg, svc, "some service client")
@@ -60,10 +64,54 @@ func TestCreateServiceClientViaEnv(t *testing.T) {
 }
 
 func TestListClusters(t *testing.T) {
+
+	confSetUp(t)
+	svc, err := CreateServiceClientViaEnv()
+	if svc == nil || err != nil {
+		t.Errorf(ExitMsg, svc, "some service client")
+		t.Errorf(ExitMsg, err, nil)
+	}
+
+	_, err = ListClusters(svc)
+	if err != nil {
+		t.Errorf(ExitMsg, err, "some error")
+	}
+
 }
 
 func TestListServices(t *testing.T) {
+
+	confSetUp(t)
+	svc, err := CreateServiceClientViaEnv()
+	if svc == nil || err != nil {
+		t.Errorf(ExitMsg, svc, "some service client")
+		t.Errorf(ExitMsg, err, nil)
+	}
+
+	tmp := "x-stg-oneoff"
+	c := &tmp
+	_, err = ListServices(svc, c)
+	if err != nil {
+		t.Errorf(ExitMsg, err, "some error")
+	}
+
 }
 
 func TestDescServices(t *testing.T) {
+
+	confSetUp(t)
+	svc, err := CreateServiceClientViaEnv()
+	if svc == nil || err != nil {
+		t.Errorf(ExitMsg, svc, "some service client")
+		t.Errorf(ExitMsg, err, nil)
+	}
+
+	tmp := "x-stg-rp"
+	c := &tmp
+	s := []*string{c}
+	_, err = DescServices(svc, c, s)
+	if err != nil {
+		t.Errorf(ExitMsg, err, "some error")
+	}
+
 }

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -15,12 +16,8 @@ import (
 func StdOutService(w io.Writer, s ecs.Service) {
 	var clusterarn = strings.Split(*s.ClusterArn, "/")
 	var taskdef = strings.Split(*s.TaskDefinition, "/")
-	io.WriteString(w, fmt.Sprintf("%+v\t", clusterarn[len(clusterarn)-1]))
-	io.WriteString(w, fmt.Sprintf("%+v\t", *s.ServiceName))
-	io.WriteString(w, fmt.Sprintf("%+v\t", taskdef[len(taskdef)-1]))
-	io.WriteString(w, fmt.Sprintf("%+v\t", *s.DesiredCount))
-	io.WriteString(w, fmt.Sprintf("%+v\t", *s.PendingCount))
-	io.WriteString(w, fmt.Sprintf("%+v\t\n", *s.RunningCount))
+	io.WriteString(w, fmt.Sprintf("%+v\t%+v\t%+v\t%+v\t%+v\t%+v\t\n",
+		clusterarn[len(clusterarn)-1], *s.ServiceName, taskdef[len(taskdef)-1], *s.DesiredCount, *s.PendingCount, *s.RunningCount))
 }
 
 // CreateServiceClient returns ECS client via env
@@ -28,13 +25,13 @@ func CreateServiceClientViaEnv() (e *ecs.ECS, err error) {
 	sess := session.Must(session.NewSession())
 	creds := credentials.NewEnvCredentials()
 	_, err = creds.Get()
-	// exit if AWS_ACCESS_KEY_ID or AWS_SECRET_ACCESS_KEY env not defined
-	//if err != nil {
-	//	return nil, err
-	//}
+	region := os.Getenv("AWS_DEFAULT_REGION")
+	if region == "" {
+		return nil, errors.New("ENV AWS_DEFAULT_REGION doesn't defined")
+	}
 	e = ecs.New(sess, &aws.Config{
 		Credentials: creds,
-		Region:      aws.String(os.Getenv("AWS_DEFAULT_REGION")),
+		Region:      aws.String(region),
 	})
 	return
 }

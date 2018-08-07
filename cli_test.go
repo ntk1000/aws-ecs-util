@@ -83,6 +83,16 @@ func TestInit_Command(t *testing.T) {
 
 }
 
+func TestRun(t *testing.T) {
+	args := strings.Split("gofe "+TaskCommand+" -a -e", " ")
+	status := cli.Init(args)
+	status = cli.Run()
+	if status != ExitCodeOK {
+		t.Errorf(ExitMsg, status, ExitCodeOK)
+	}
+
+}
+
 func TestInit_Flags(t *testing.T) {
 
 	args := strings.Split("gofe "+TaskCommand+" -a", " ")
