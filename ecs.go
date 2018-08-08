@@ -13,11 +13,13 @@ import (
 	"github.com/aws/aws-sdk-go/service/ecs"
 )
 
-func StdOutService(w io.Writer, s ecs.Service) {
+func StdOutService(w io.Writer, s ecs.Service) (out string) {
 	var clusterarn = strings.Split(*s.ClusterArn, "/")
 	var taskdef = strings.Split(*s.TaskDefinition, "/")
-	io.WriteString(w, fmt.Sprintf("%+v\t%+v\t%+v\t%+v\t%+v\t%+v\t\n",
-		clusterarn[len(clusterarn)-1], *s.ServiceName, taskdef[len(taskdef)-1], *s.DesiredCount, *s.PendingCount, *s.RunningCount))
+	out = fmt.Sprintf("%+v\t%+v\t%+v\t%+v\t%+v\t%+v\t\n",
+		clusterarn[len(clusterarn)-1], *s.ServiceName, taskdef[len(taskdef)-1], *s.DesiredCount, *s.PendingCount, *s.RunningCount)
+	io.WriteString(w, out)
+	return
 }
 
 // CreateServiceClient returns ECS client via env

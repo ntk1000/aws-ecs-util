@@ -15,6 +15,7 @@ type CLI struct {
 	WithHeader           bool
 	ClusterName          string
 	ServiceName          string
+	WithSlack            bool
 }
 
 // exit codes
@@ -25,6 +26,7 @@ const (
 	ExitCodeParseFlagError
 	ExitCodeConfigError
 	ExitCodeAWSECSError
+	ExitCodeSlackError
 )
 
 // supported commands
@@ -41,6 +43,7 @@ var (
 	WithHeader  bool
 	ClusterName string
 	ServiceName string
+	WithSlack   bool
 )
 
 // Init checks and parses args
@@ -65,6 +68,7 @@ func (c *CLI) Init(args []string) int {
 	flags.BoolVar(&c.WithHeader, "wh", false, "show headers")
 	flags.StringVar(&c.ClusterName, "cn", "", "target cluster name")
 	flags.StringVar(&c.ServiceName, "sn", "", "target service name")
+	flags.BoolVar(&c.WithSlack, "s", false, "use this option to send result to slack")
 
 	// skip args[1] for command
 	if err := flags.Parse(args[2:]); err != nil {
@@ -95,6 +99,7 @@ func (c *CLI) Run() int {
 		return ExitCodeConfigError
 	}
 
+	var out string
 	// run command
 	switch c.Command {
 	case TaskCommand:
@@ -111,21 +116,23 @@ func (c *CLI) Run() int {
 			for _, cluster := range clusters.ClusterArns {
 				services, err := ListServices(svc, cluster)
 				if err != nil {
+					io.WriteString(c.errStream, fmt.Sprintf("%v\n", *cluster))
 					io.WriteString(c.errStream, fmt.Sprintf("%v\n", err))
 					return ExitCodeAWSECSError
 				}
 				descs, err2 := DescServices(svc, cluster, services.ServiceArns)
 				if err2 != nil {
+					io.WriteString(c.errStream, fmt.Sprintf("%v\n", *cluster))
 					io.WriteString(c.errStream, fmt.Sprintf("%v\n", err2))
 					//return ExitCodeAWSECSError
 				}
 				for _, service := range descs.Services {
 					if c.WithError {
 						if *service.DesiredCount != *service.RunningCount {
-							StdOutService(c.outStream, *service)
+							out += StdOutService(c.outStream, *service)
 						}
 					} else {
-						StdOutService(c.outStream, *service)
+						out += StdOutService(c.outStream, *service)
 					}
 				}
 			}
@@ -134,5 +141,15 @@ func (c *CLI) Run() int {
 	case EventsCommand:
 		io.WriteString(c.outStream, "not yet")
 	}
+
+	if c.WithSlack {
+		s := NewSlack("", "", out)
+		err := s.Post()
+		if err != nil {
+			io.WriteString(c.errStream, fmt.Sprintf("%v\n", err))
+			return ExitCodeSlackError
+		}
+	}
+
 	return ExitCodeOK
 }
