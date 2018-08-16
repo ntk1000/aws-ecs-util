@@ -22,19 +22,19 @@ TODO
 
 ```
 # show desired,pending,running ecs tasks in all clusters
-gofe -c show-tasks -a
+gofe show-tasks -a
 
 # detect desired > running ecs tasks in all clusters (detect errors)
-gofe -c show-tasks -a -e
+gofe show-tasks -a -e
 
 # filter cluster-name with sc option
-gofe -c show-tasks -cn cluster-name
+gofe show-tasks -cn cluster-name
 
 # filter service-name with ss option
-gofe -c show-tasks -sn service-name
+gofe show-tasks -sn service-name
 
 # show service events
-gofe -c show-events
+gofe show-events
 
 ```
 
