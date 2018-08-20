@@ -58,7 +58,11 @@ func (s *Slack) HandleJSON() (string, error) {
 
 	if s.Text == "" {
 		return "", errors.New("text is empty")
-	} else if s.Channel == "" && s.Name == "" {
+	} else {
+		s.Text += "\n <!channel>"
+	}
+
+	if s.Channel == "" && s.Name == "" {
 		return `{"text":"` + s.Text + `"}`, nil
 	} else if s.Channel == "" && s.Name != "" {
 		return `{"username":"` + s.Name + `","text":"` + s.Text + `"}`, nil

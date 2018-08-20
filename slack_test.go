@@ -47,30 +47,31 @@ func TestJSON(t *testing.T) {
 		t.Errorf(ExitMsg, err, "text empty error")
 	}
 
+	test_text := "test\n <!channel>"
 	s = NewSlack("", "", "test")
 	json, err = s.HandleJSON()
-	if err != nil || json != `{"text":"test"}` {
+	if err != nil || json != `{"text":"`+test_text+`"}` {
 		t.Errorf(ExitMsg, json, "text json")
 		t.Errorf(ExitMsg, err, nil)
 	}
 
 	s = NewSlack("test", "", "test")
 	json, err = s.HandleJSON()
-	if err != nil || json != `{"username":"test","text":"test"}` {
+	if err != nil || json != `{"username":"test","text":"`+test_text+`"}` {
 		t.Errorf(ExitMsg, json, "username, text json")
 		t.Errorf(ExitMsg, err, nil)
 	}
 
 	s = NewSlack("", "test", "test")
 	json, err = s.HandleJSON()
-	if err != nil || json != `{"channel":"test","text":"test"}` {
+	if err != nil || json != `{"channel":"test","text":"`+test_text+`"}` {
 		t.Errorf(ExitMsg, json, "channel, text json")
 		t.Errorf(ExitMsg, err, nil)
 	}
 
 	s = NewSlack("test", "test", "test")
 	json, err = s.HandleJSON()
-	if err != nil || json != `{"channel":"test","username":"test","text":"test"}` {
+	if err != nil || json != `{"channel":"test","username":"test","text":"`+test_text+`"}` {
 		t.Errorf(ExitMsg, json, "channel, username, text json")
 		t.Errorf(ExitMsg, err, nil)
 	}

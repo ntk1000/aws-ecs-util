@@ -29,10 +29,11 @@ const (
 	ExitCodeSlackError
 )
 
-// supported commands
+// supported commands, consts
 const (
 	TaskCommand   = "show-tasks"
 	EventsCommand = "show-events"
+	Header        = "cluster\tservice\ttaskdefinition\tdesired\tpending\trunning\n"
 )
 
 // supported flags
@@ -104,8 +105,8 @@ func (c *CLI) Run() int {
 	switch c.Command {
 	case TaskCommand:
 		if c.WithHeader {
-			io.WriteString(c.outStream,
-				"cluster\tservice\ttaskdefinition\tdesired\tpending\trunning\n")
+			out += Header
+			io.WriteString(c.outStream, Header)
 		}
 		if c.WithAll {
 			clusters, err := ListClusters(svc)
@@ -143,6 +144,9 @@ func (c *CLI) Run() int {
 	}
 
 	if c.WithSlack {
+		if out == Header {
+			out = ""
+		}
 		s := NewSlack("", "", out)
 		err := s.Post()
 		if err != nil {
