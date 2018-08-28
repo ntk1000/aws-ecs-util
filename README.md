@@ -38,9 +38,23 @@ gofe show-events
 
 ```
 
+### todolist
+
+* minify docker image using [dockerslim](https://github.com/docker-slim/docker-slim)
+* speed up with concurrency or other technique
+* setup binary to github release
+
 ### ref
 
-* https://deeeet.com/writing/2014/08/27/cli-reference/
-* http://yapcasia.org/2014/talk/show/b49cc53a-027b-11e4-9357-07b16aeab6a4
-* https://www.gnu.org/prep/standards/html_node/Option-Table.html#Option-Table
+* cli design
+	* https://deeeet.com/writing/2014/08/27/cli-reference/
+	* http://yapcasia.org/2014/talk/show/b49cc53a-027b-11e4-9357-07b16aeab6a4
+	* https://www.gnu.org/prep/standards/html_node/Option-Table.html#Option-Table
+* performance tuning
+	* https://qiita.com/naoina/items/d71ddfab31f4b29f6693#%E4%BE%8B%E3%81%88%E3%81%B0channel-%E3%82%92%E4%BD%BF%E3%82%8F%E3%81%AA%E3%81%84
+	* http://blog.monochromegane.com/blog/2015/12/15/how-to-speed-up-the-platinum-searcher-v2/
+	* https://mattn.kaoriya.net/software/lang/go/20180531104907.htm
+	* https://mattn.kaoriya.net/software/lang/go/20161019124907.htm
+	* http://kenzo0107.hatenablog.com/entry/2016/11/21/142248
+	* https://go-tour-jp.appspot.com/concurrency/1
 
