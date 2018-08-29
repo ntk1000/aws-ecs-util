@@ -144,11 +144,14 @@ func (c *CLI) Run() int {
 	}
 
 	if c.WithSlack {
-		if out == Header {
-			out = ""
+		s := &Slack{}
+		err := s.Init()
+		if err != nil {
+			io.WriteString(c.errStream, fmt.Sprintf("%v\n", err))
+			return ExitCodeSlackError
 		}
-		s := NewSlack("", "", out)
-		err := s.Post()
+		s.Setup(out)
+		err = s.Post()
 		if err != nil {
 			io.WriteString(c.errStream, fmt.Sprintf("%v\n", err))
 			return ExitCodeSlackError
