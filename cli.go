@@ -141,6 +141,9 @@ func (c *CLI) Run() int {
 	}
 
 	if c.WithSlack {
+		if len(out) == 0 {
+			return ExitCodeOK
+		}
 		s := &Slack{}
 		err := s.Init()
 		if err != nil {
