@@ -23,7 +23,10 @@ func TestPost(t *testing.T) {
 	if err != nil {
 		t.Errorf(ExitMsg, err, nil)
 	}
-	s.Setup("test dayo from aws-ecs-util :sake:")
+	a := &SlackAttachment{
+		Text: "test dayo from aws-ecs-util :sake:",
+	}
+	s.SetupAttachments(*a)
 	err = s.Post()
 	if err != nil {
 		t.Errorf(ExitMsg, err, nil)

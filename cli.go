@@ -1,10 +1,15 @@
 package main
 
 import (
+	"encoding/json"
 	"errors"
 	"flag"
 	"fmt"
 	"io"
+	"strconv"
+	"strings"
+
+	"github.com/aws/aws-sdk-go/service/ecs"
 )
 
 type CLI struct {
@@ -12,7 +17,6 @@ type CLI struct {
 	Command              string
 	WithAll              bool
 	WithError            bool
-	WithHeader           bool
 	ClusterName          string
 	ServiceName          string
 	WithSlack            bool
@@ -33,7 +37,6 @@ const (
 const (
 	TaskCommand   = "show-tasks"
 	EventsCommand = "show-events"
-	Header        = "cluster\tservice\ttaskdefinition\tdesired\tpending\trunning\n"
 )
 
 // supported flags
@@ -41,7 +44,6 @@ var (
 	Command     string
 	WithAll     bool
 	WithError   bool
-	WithHeader  bool
 	ClusterName string
 	ServiceName string
 	WithSlack   bool
@@ -66,7 +68,6 @@ func (c *CLI) Init(args []string) int {
 	flags.SetOutput(c.errStream)
 	flags.BoolVar(&c.WithAll, "a", false, "use this option for all clusters")
 	flags.BoolVar(&c.WithError, "e", false, "detect desired > running ecs tasks, error status")
-	flags.BoolVar(&c.WithHeader, "wh", false, "show headers")
 	flags.StringVar(&c.ClusterName, "cn", "", "target cluster name")
 	flags.StringVar(&c.ServiceName, "sn", "", "target service name")
 	flags.BoolVar(&c.WithSlack, "s", false, "use this option to send result to slack")
@@ -100,14 +101,10 @@ func (c *CLI) Run() int {
 		return ExitCodeConfigError
 	}
 
-	var out string
+	var out []CustomEcsService
 	// run command
 	switch c.Command {
 	case TaskCommand:
-		if c.WithHeader {
-			out += Header
-			io.WriteString(c.outStream, Header)
-		}
 		if c.WithAll {
 			clusters, err := ListClusters(svc)
 			if err != nil {
@@ -130,10 +127,10 @@ func (c *CLI) Run() int {
 				for _, service := range descs.Services {
 					if c.WithError {
 						if *service.DesiredCount != *service.RunningCount {
-							out += StdOutService(c.outStream, *service)
+							out = append(out, ConvertService(*service))
 						}
 					} else {
-						out += StdOutService(c.outStream, *service)
+						out = append(out, ConvertService(*service))
 					}
 				}
 			}
@@ -150,13 +147,77 @@ func (c *CLI) Run() int {
 			io.WriteString(c.errStream, fmt.Sprintf("%v\n", err))
 			return ExitCodeSlackError
 		}
-		s.Setup(out)
+		//s.Setup(out)
+		s.SetupAttachments(CreateSlackAttachments(out))
 		err = s.Post()
 		if err != nil {
 			io.WriteString(c.errStream, fmt.Sprintf("%v\n", err))
 			return ExitCodeSlackError
 		}
+	} else {
+		b, _ := json.Marshal(out)
+		io.WriteString(c.outStream, string(b))
 	}
 
 	return ExitCodeOK
+}
+
+func CreateSlackAttachments(ces []CustomEcsService) (a SlackAttachment) {
+	for _, c := range ces {
+		cf := &SlackField{
+			Title: "cluster",
+			Value: c.Cluster,
+			Short: false,
+		}
+		sf := &SlackField{
+			Title: "service",
+			Value: c.Service,
+			Short: false,
+		}
+		tf := &SlackField{
+			Title: "taskdef",
+			Value: c.TaskDefinition,
+			Short: false,
+		}
+		df := &SlackField{
+			Title: "desired",
+			Value: strconv.FormatInt(c.Desired, 10),
+			Short: false,
+		}
+		pf := &SlackField{
+			Title: "pending",
+			Value: strconv.FormatInt(c.Pending, 10),
+			Short: false,
+		}
+		rf := &SlackField{
+			Title: "running",
+			Value: strconv.FormatInt(c.Running, 10),
+			Short: false,
+		}
+
+		a.Fields = append(a.Fields, *cf, *sf, *tf, *df, *pf, *rf)
+	}
+	return
+}
+
+func ConvertService(s ecs.Service) CustomEcsService {
+	var clusterarn = strings.Split(*s.ClusterArn, "/")
+	var taskdef = strings.Split(*s.TaskDefinition, "/")
+	return CustomEcsService{
+		Cluster:        clusterarn[len(clusterarn)-1],
+		Service:        *s.ServiceName,
+		TaskDefinition: taskdef[len(taskdef)-1],
+		Desired:        *s.DesiredCount,
+		Pending:        *s.PendingCount,
+		Running:        *s.RunningCount,
+	}
+}
+
+type CustomEcsService struct {
+	Cluster        string `json:"cluster"`
+	Service        string `json:"service"`
+	TaskDefinition string `json:"taskdef"`
+	Desired        int64  `json:"desired"`
+	Pending        int64  `json:"pending"`
+	Running        int64  `json:"running"`
 }

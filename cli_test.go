@@ -92,14 +92,14 @@ func TestRun(t *testing.T) {
 		t.Errorf(ExitMsg, status, ExitCodeOK)
 	}
 
-	args = strings.Split("gofe "+TaskCommand+" -a -wh", " ")
+	args = strings.Split("gofe "+TaskCommand+" -a", " ")
 	status = cli.Init(args)
 	status = cli.Run()
 	if status != ExitCodeOK {
 		t.Errorf(ExitMsg, status, ExitCodeOK)
 	}
 
-	args = strings.Split("gofe "+TaskCommand+" -a", " ")
+	args = strings.Split("gofe "+TaskCommand+" -a -e -s", " ")
 	status = cli.Init(args)
 	status = cli.Run()
 	if status != ExitCodeOK {
@@ -135,9 +135,6 @@ func TestInit_Flags(t *testing.T) {
 	if cli.WithError {
 		t.Errorf(ExitMsg, cli.WithError, false)
 	}
-	if cli.WithHeader {
-		t.Errorf(ExitMsg, cli.WithHeader, false)
-	}
 	if cli.WithSlack {
 		t.Errorf(ExitMsg, cli.WithSlack, false)
 	}
@@ -153,31 +150,9 @@ func TestInit_Flags(t *testing.T) {
 	if !cli.WithError {
 		t.Errorf(ExitMsg, cli.WithError, true)
 	}
-	if cli.WithHeader {
-		t.Errorf(ExitMsg, cli.WithHeader, false)
-	}
 	if cli.WithSlack {
 		t.Errorf(ExitMsg, cli.WithSlack, false)
 	}
-
-	args = strings.Split("gofe "+TaskCommand+" -wh", " ")
-	status = cli.Init(args)
-	if status != ExitCodeOK {
-		t.Errorf(ExitMsg, status, ExitCodeOK)
-	}
-	if cli.WithAll {
-		t.Errorf(ExitMsg, cli.WithAll, false)
-	}
-	if cli.WithError {
-		t.Errorf(ExitMsg, cli.WithError, false)
-	}
-	if !cli.WithHeader {
-		t.Errorf(ExitMsg, cli.WithHeader, true)
-	}
-	if cli.WithSlack {
-		t.Errorf(ExitMsg, cli.WithSlack, false)
-	}
-
 	args = strings.Split("gofe "+TaskCommand+" -s", " ")
 	status = cli.Init(args)
 	if status != ExitCodeOK {
@@ -188,9 +163,6 @@ func TestInit_Flags(t *testing.T) {
 	}
 	if cli.WithError {
 		t.Errorf(ExitMsg, cli.WithError, false)
-	}
-	if cli.WithHeader {
-		t.Errorf(ExitMsg, cli.WithHeader, false)
 	}
 	if !cli.WithSlack {
 		t.Errorf(ExitMsg, cli.WithSlack, true)
@@ -206,9 +178,6 @@ func TestInit_Flags(t *testing.T) {
 	}
 	if cli.WithError {
 		t.Errorf(ExitMsg, cli.WithError, false)
-	}
-	if cli.WithHeader {
-		t.Errorf(ExitMsg, cli.WithHeader, false)
 	}
 	if cli.WithSlack {
 		t.Errorf(ExitMsg, cli.WithSlack, false)
@@ -228,9 +197,6 @@ func TestInit_Flags(t *testing.T) {
 	}
 	if cli.WithError {
 		t.Errorf(ExitMsg, cli.WithError, false)
-	}
-	if cli.WithHeader {
-		t.Errorf(ExitMsg, cli.WithHeader, false)
 	}
 	if cli.WithSlack {
 		t.Errorf(ExitMsg, cli.WithSlack, false)

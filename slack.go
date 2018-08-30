@@ -49,8 +49,8 @@ func (s *Slack) Init() error {
 	return nil
 }
 
-func (s *Slack) Setup(t string) {
-	s.Text = t
+func (s *Slack) SetupAttachments(a SlackAttachment) {
+	s.Attachments = append(s.Attachments, a)
 }
 
 func (s *Slack) Post() error {
@@ -59,7 +59,7 @@ func (s *Slack) Post() error {
 	if j_err != nil {
 		return j_err
 	}
-	//os.Stdout.Write(j)
+	os.Stdout.Write(j)
 
 	req, req_err := http.NewRequest(
 		"POST",

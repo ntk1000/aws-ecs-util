@@ -2,25 +2,13 @@ package main
 
 import (
 	"errors"
-	"fmt"
-	"io"
 	"os"
-	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ecs"
 )
-
-func StdOutService(w io.Writer, s ecs.Service) (out string) {
-	var clusterarn = strings.Split(*s.ClusterArn, "/")
-	var taskdef = strings.Split(*s.TaskDefinition, "/")
-	out = fmt.Sprintf("%+v\t%+v\t%+v\t%+v\t%+v\t%+v\t\n",
-		clusterarn[len(clusterarn)-1], *s.ServiceName, taskdef[len(taskdef)-1], *s.DesiredCount, *s.PendingCount, *s.RunningCount)
-	io.WriteString(w, out)
-	return
-}
 
 // CreateServiceClient returns ECS client via env
 func CreateServiceClientViaEnv() (e *ecs.ECS, err error) {
